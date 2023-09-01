@@ -1,0 +1,21 @@
+---
+- name: Determining the master/slave node
+  block:
+    - name: Check for Master node
+      set_fact:
+        __master_node: "{{ __master_slave | select('match', '.*Master.*') | map('regex_replace', '.*Master ', '') | list }}"
+
+    - name: Check for Slave node
+      set_fact:
+        __slave_node: "{{ __master_slave | select('match', '.*Slave.*') | map('regex_replace', '.*Slave ', '') | list }}"
+
+    - name: Order the node based on master/slave status
+      set_fact:
+        __sorted_hosts: "{{ __slave_node + __master_node }}"
+
+    - name: What type of setup it is?
+      debug:
+        msg: >-
+          This is a Master/Slave cluster setup with {{ __master_node }} as master node 
+          and {{ __slave_node }} as slave node.
+  run_once: true

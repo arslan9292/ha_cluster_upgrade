@@ -1,0 +1,6 @@
+---
+- name: Playbook to apply patch upgrade over the RHEL Pacemaker Cluster setup 
+  hosts: cluster
+
+  roles:
+    - system-roles.cluster_patching

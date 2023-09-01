@@ -1,0 +1,3 @@
+[cluster]
+rhel-ha-node1.example.com
+rhel-ha-node2.example.com

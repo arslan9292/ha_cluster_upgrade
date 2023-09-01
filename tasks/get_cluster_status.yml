@@ -1,0 +1,8 @@
+---
+- name: Get the cluster status
+  block:
+    - name: Cluster status
+      command: pcs status --full
+      register: __cluster_status
+      ignore_errors: true
+  run_once: true

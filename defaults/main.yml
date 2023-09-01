@@ -1,0 +1,11 @@
+---
+# defaults file for ha_cluster_upgrade
+__standalone: []    # Do not update or change the value of this variable
+__master_slave: []  # Do not update or change the value of this variable
+
+rolling_upgrade: false
+complete_upgrade: true
+
+local_repo: true
+release_set: ''
+additional_packages_for_update: []

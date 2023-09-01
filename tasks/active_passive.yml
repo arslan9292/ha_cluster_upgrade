@@ -1,0 +1,44 @@
+---
+- name: Determining the active node
+  block:
+    - name: Split lines and store in a variable
+      set_fact:
+        __standalone_lines: "{{ __standalone | map('regex_replace', '.*Started ', '') | list }}"
+
+    - name: Count the number of resources running on each of the cluster node
+      set_fact:
+        __host_counts: "{{ __host_counts | default({}) | 
+          combine({ item: __standalone_lines | map('trim') | select('in', [item]) | list | count})
+           }}"
+      loop: "{{ ansible_play_hosts }}"
+
+    - name: Find hostname with the maximum count
+      set_fact:
+        __max_host_count: "{{ __host_counts | dict2items | sort(attribute='value') }}"
+
+    - name: Calculate distinct values
+      set_fact:
+        __distinct_values: "{{ __max_host_count | map(attribute='value') | unique }}"
+
+    - name: Set variable based on distinct values
+      set_fact:
+        __values_same_for_all_keys: "{{ __distinct_values | length == 1 }}"
+
+    - name: What type of setup it is?
+      debug:
+        msg: >-
+          {% if __values_same_for_all_keys %}
+          This is an active-active cluster setup.
+          {% else %}
+          "This is an active-passive setup with the active node {{ __active_node.key }}."
+          {% endif %}
+      loop: "{{ __max_host_count }}"
+      loop_control:
+        loop_var: __active_node
+      when: __active_node.value == __max_host_count | map(attribute='value') | max
+
+    - name: Get hosts sorted by number of resources running on each node
+      set_fact:
+        __sorted_hosts: "{{ __max_host_count | map(attribute='key') | list }}"
+  
+  run_once: true

@@ -1,0 +1,27 @@
+---
+- name: Determine which method to use for performing update
+  set_fact:
+    __task_to_execute: >
+      {% if rolling_upgrade is defined and rolling_upgrade %}
+        staged_rolling_update.yml
+      {% elif complete_upgrade is defined and complete_upgrade %}
+        staged_complete_update.yml
+      {% else %}
+        staged_complete_update.yml
+      {% endif %}
+
+- name: Trim the variable for any white spaces
+  set_fact:
+    __task_to_execute: "{{ __task_to_execute | trim }}"
+
+- name: The final patching method to be used over the cluster setup
+  debug:
+    msg: >
+      {% if __task_to_execute == "staged_complete_update.yml" %}
+      Using complete update method for applying the patches over the cluster nodes.
+      {% else %}
+      Using rolling update method for applying the patches over the cluster nodes.
+      {% endif %}
+
+- name: Execute the play to apply the patches over cluster nodes
+  include_tasks: "{{ __task_to_execute }}"

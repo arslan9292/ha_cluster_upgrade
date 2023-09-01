@@ -1,0 +1,39 @@
+---
+# tasks file for ha_cluster_upgrade
+- name: Get the cluster status
+  include_tasks: get_cluster_status.yml
+
+- name: Determine the cluster type
+  include_tasks: determine_cluster_type.yml
+
+- name: Determine the list of packages to update
+  include_tasks: get_package_list.yml
+
+- name: Select the task based on cluster type
+  set_fact:
+    __cluster_task: >-
+      {% if __master_slave is defined and __master_slave | select("search", "Master|Slave") | list | length > 0 %}
+      master_slave.yml
+      {% elif __standalone is defined and __standalone | select("search", "Started") | list | length > 0 %}
+      active_passive.yml
+      {% endif %}
+  run_once: true
+
+- name: Trim the variable for any white spaces
+  set_fact:
+    __cluster_task: "{{ __cluster_task | trim }}"
+  run_once: true
+
+- name: Sort the cluster nodes based on the current cluster status
+  include_tasks: "{{ __cluster_task }}"
+
+- name: Tie the cluster node(s) to a specific release
+  include_tasks: subscription_manager_set.yml
+  when: not local_repo and release_set | d()
+
+- name: Apply the patches on sorted hosts
+  include_tasks: yum_update.yml
+
+- name: Unset the cluster nodes from the release set
+  include_tasks: subscription_manager_unset.yml
+  when: not local_repo and release_set | d()

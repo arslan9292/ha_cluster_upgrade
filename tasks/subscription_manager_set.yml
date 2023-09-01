@@ -1,0 +1,19 @@
+---
+# - name: Available releases
+#   command: subscription-manager release --list
+#   register: available_releases
+
+- name: Set the subscription-manager release
+  command: subscription-manager release --set={{ release_set }}
+  register: subs_mgr_release_set
+
+- name: Cleanup the repositories
+  yum:
+    name: ''
+    state: present
+    update_cache: true
+  register: yum_clean_set_status
+
+# - name: Validate the new release set
+#   command: subscription-manager release --show
+#   register: subs_mgr_release_set_result

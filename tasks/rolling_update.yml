@@ -1,0 +1,34 @@
+---
+- name: Performing task on {{ __cluster_node }}
+  block:
+    - name: Disable the cluster services at boot on node {{ __cluster_node }}
+      command: pcs cluster disable "{{ __cluster_node }}"
+
+    - name: Place the cluster node {{ __cluster_node }} in standby mode
+      command: pcs node standby {{ __cluster_node }}
+
+    - name: Stop the cluster on node {{ __cluster_node }} for applying patches
+      command: pcs cluster stop "{{ __cluster_node }}" --request-timeout=180
+
+    - name: Apply the patches on node {{ __cluster_node }}
+      yum:
+        name: "{{ __final_packages_for_update }}"
+        state: present
+
+    - name: Rebooting the node {{ __cluster_node }}
+      reboot:
+        msg: "Rebooting the cluster node {{ __cluster_node }} as a part of patching."
+        post_reboot_delay: 120   # This will allow the node to settle despite the connections are working
+        reboot_timeout: 1800     # For slow booting systems (servers with high memory like SAPHana setup)
+
+    - name: Start the cluster services on the node {{ __cluster_node }}
+      command: pcs cluster start "{{ __cluster_node }}" --request-timeout=180
+
+    - name: Unstandby the cluster node {{ __cluster_node }}
+      command: pcs node unstandby {{ __cluster_node }}
+
+    - name: Enable the cluster services on node {{ __cluster_node }}
+      command: pcs cluster enable "{{ __cluster_node }}"
+      
+  delegate_to: "{{ __cluster_node }}"
+  run_once: true

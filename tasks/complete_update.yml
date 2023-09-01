@@ -1,0 +1,39 @@
+---
+- name: Performing patch upgrade task
+  block:
+    - name: Disable the cluster services at boot on all the cluster nodes
+      command: pcs cluster disable --all
+
+    - name: Place the cluster nodes in standby mode
+      command: pcs node standby --all
+
+    - name: Stop the cluster services on all the nodes for applying patches
+      command: pcs cluster stop --all --request-timeout=180
+
+  delegate_to: "{{ ansible_play_hosts[0] }}"
+  run_once: true
+
+- name: Apply the patches on all the cluster nodes
+  yum:
+    name: "{{ __final_packages_for_update }}"
+    state: present
+
+- name: Rebooting all the cluster nodes
+  reboot:
+    msg: "Rebooting the cluster node as a part of patching."
+    post_reboot_delay: 120   # This will allow the node to settle despite the connections are working
+    reboot_timeout: 1800     # For slow booting systems (servers with high memory like SAPHana setup)
+
+- name: Patches applied and system rebooted. Now starting the cluster services
+  block:
+    - name: Start the cluster services on all the nodes
+      command: pcs cluster start --all --request-timeout=180
+
+    - name: Unstandby all the cluster nodes
+      command: pcs node unstandby --all
+
+    - name: Enable the cluster services at boot
+      command: pcs cluster enable --all
+
+  delegate_to: "{{ ansible_play_hosts[0] }}"
+  run_once: true

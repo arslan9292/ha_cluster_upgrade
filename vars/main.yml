@@ -1,0 +1,29 @@
+---
+# vars file for ha_cluster_upgrade
+basic_packages:
+  - pacemaker
+  - corosync
+  - pcs
+  - fence-agents-all
+  - resource-agents
+
+resilient_packages_rh7:
+  - lvm2-cluster
+  - gfs2-utils
+  - dlm
+
+resilient_packages_rh8_rh9:
+  - lvm2-lockd
+  - gfs2-utils
+  - dlm
+
+sap_instance_packages:
+  - resource-agents-sap
+
+sap_hana_packages:
+  - resource-agents-sap-hana
+
+qdevice_packages:
+  - corosync-qdevice
+
+__qdevice_configured: false  # Do not update or change the value of this variable

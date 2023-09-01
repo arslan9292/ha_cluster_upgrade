@@ -1,0 +1,15 @@
+---
+- name: Unset the release
+  command: subscription-manager release --unset
+  register: subs_mgr_release_unset
+
+- name: Cleanup the repositories
+  yum:
+    name: ''
+    state: present
+    update_cache: true
+  register: yum_clean_unset_status
+
+# - name: Confirm the release is unset
+#   command: subscription-manager release --show
+#   register: subs_mgr_release_unset_result

@@ -1,0 +1,9 @@
+---
+- name: Apply patches on the cluster nodes using rolling method
+  block:
+    - name: Apply patches on the cluster nodes using rolling method
+      include_tasks: rolling_update.yml
+      loop: "{{ __sorted_hosts }}"
+      loop_control:
+        loop_var: __cluster_node
+  run_once: true

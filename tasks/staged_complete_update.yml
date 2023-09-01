@@ -1,0 +1,3 @@
+---
+- name: Apply patches on all the nodes
+  include_tasks: complete_update.yml

@@ -1,0 +1,15 @@
+---
+- name: Set the cluster type
+  block:
+    - name: Check for a standalone or cloned resource
+      set_fact:
+        __standalone: "{{ __standalone + [item] }}"
+      loop: "{{ __cluster_status.stdout_lines }}"
+      when: "'Started' in item and 'stonith' not in item"
+
+    - name: Check for a master/slave resource
+      set_fact:
+        __master_slave: "{{ __master_slave + [item] }}"
+      loop: "{{ __cluster_status.stdout_lines }}"
+      when: "'Master ' in item or 'Slave ' in item"
+  run_once: true
