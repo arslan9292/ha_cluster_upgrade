@@ -3,7 +3,7 @@ galaxy_info:
   description: Automate the patching over RHEL Pacemaker Cluster Setup
   company: Red Hat, Inc.
 
-  license: license (GPL-2.0-or-later, MIT, etc)
+  license: MIT
 
   min_ansible_version: "2.9"
 
