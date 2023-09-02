@@ -77,6 +77,39 @@ List of packages associated with Pacemaker cluter managing SAPHana.
 
 List of packages associated with Quorum Device.
 
+### Details for Rolling Upgrade method
+
+While using rolling upgrade method, the role will detect which is the current active node (or the node which holds the maximum resources) & will start the upgrade from the passive node (i.e. the node which has the least number of resources).
+
+If the cluster setup has a `Master/Slave` resource configured with/without any standalone resource(s), the role will consistently prioritize the status of the `Master/Slave` resource and execute the patch upgrade on the Slave node first.
+
+**For example:**
+
+1. The tasks within the role will calculate the node which holds the least number of resources and start the patch upgrade from that node. Referring to the following resource status, the role will start the patch upgarde from node `rhel-ha-node2.example.com` because it holds least number of resources:
+```bash
+# pcs resource status
+  * dummy1	(ocf::heartbeat:Dummy):	 Started rhel-ha-node2.example.com
+  * dummy2	(ocf::heartbeat:Dummy):	 Started rhel-ha-node2.example.com
+  * Resource Group: dummy_grp:
+    * dummy3	(ocf::heartbeat:Dummy):	 Started rhel-ha-node1.example.com
+    * dummy4	(ocf::heartbeat:Dummy):	 Started rhel-ha-node1.example.com
+    * dummy5	(ocf::heartbeat:Dummy):	 Started rhel-ha-node1.example.com
+```
+
+2. Similarly if cluster is managing a `Master/Slave` resource, the patch upgrade process will consistently commence from the Slave node, regardless of the quantity of resources active on the Master node. In the following state of cluster resources, the patch upgrade will start from node `rhel-ha-node1.example.com` because it is the Slave node:
+```bash
+# pcs resource status
+  * dummy	(ocf::heartbeat:Dummy):	 Started rhel-ha-node2.example.com
+  * dummy2	(ocf::heartbeat:Dummy):	 Started rhel-ha-node2.example.com
+  * Resource Group: test:
+    * dummy3	(ocf::heartbeat:Dummy):	 Started rhel-ha-node1.example.com
+    * dummy4	(ocf::heartbeat:Dummy):	 Started rhel-ha-node1.example.com
+    * dummy5	(ocf::heartbeat:Dummy):	 Started rhel-ha-node1.example.com
+  * Clone Set: state-clone [state] (promotable):
+    * Masters: [ rhel-ha-node2.example.com ]
+    * Slaves: [ rhel-ha-node1.example.com ]
+```
+
 ## Example Inventory
 
 The inventory file _must_ be populated with the cluster node name. The inventory host names is used while executing the `pcs` commands.
