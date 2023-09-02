@@ -16,7 +16,7 @@
 - name: Apply the patches on all the cluster nodes
   yum:
     name: "{{ __final_packages_for_update }}"
-    state: present
+    state: latest
 
 - name: Rebooting all the cluster nodes
   reboot:

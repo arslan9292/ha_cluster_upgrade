@@ -29,11 +29,11 @@
 
 - name: Tie the cluster node(s) to a specific release
   include_tasks: subscription_manager_set.yml
-  when: not local_repo and release_set | d()
+  when: not local_repo
 
 - name: Apply the patches on sorted hosts
   include_tasks: yum_update.yml
 
 - name: Unset the cluster nodes from the release set
   include_tasks: subscription_manager_unset.yml
-  when: not local_repo and release_set | d()
+  when: not local_repo

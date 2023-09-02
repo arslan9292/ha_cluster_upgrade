@@ -13,7 +13,7 @@
     - name: Apply the patches on node {{ __cluster_node }}
       yum:
         name: "{{ __final_packages_for_update }}"
-        state: present
+        state: latest
 
     - name: Rebooting the node {{ __cluster_node }}
       reboot:

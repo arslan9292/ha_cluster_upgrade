@@ -3,9 +3,33 @@
 #   command: subscription-manager release --list
 #   register: available_releases
 
+- name: Validate the current release set
+  command: subscription-manager release --show
+  register: subs_mgr_release_show
+
+- name: Current subscription-manager release
+  debug:
+    msg: >-
+      {% if subs_mgr_release_show.stdout == 'Release not set' %}
+        The system does not has any current release set.
+      {% else %}
+        "The current subscription manager release: {{ subs_mgr_release_show.stdout }}."
+      {% endif %}
+
 - name: Set the subscription-manager release
   command: subscription-manager release --set={{ release_set }}
   register: subs_mgr_release_set
+  when: release_set != ''
+
+- name: New subscription-manager release set
+  command: subscription-manager release --show
+  register: subs_mgr_release_new_set
+  when: release_set != ''
+
+- name: Final subscription-manager release before the upgrade
+  debug:
+    msg: "Final subscription manager release before the upgrade: {{ subs_mgr_release_new_set.stdout }}."
+  when: release_set != ''
 
 - name: Cleanup the repositories
   yum:
@@ -13,7 +37,3 @@
     state: present
     update_cache: true
   register: yum_clean_set_status
-
-# - name: Validate the new release set
-#   command: subscription-manager release --show
-#   register: subs_mgr_release_set_result

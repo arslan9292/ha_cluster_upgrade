@@ -2,6 +2,7 @@
 - name: Unset the release
   command: subscription-manager release --unset
   register: subs_mgr_release_unset
+  when: release_set != ''
 
 - name: Cleanup the repositories
   yum:

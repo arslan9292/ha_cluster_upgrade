@@ -28,40 +28,53 @@ KCS article from Red Hat:
 ### Defined in `defaults/main.yml`
 
 1.  `rolling_upgrade` (boolean, default: `false`)
+
 It defines the Rolling upgrade method to be used while performing the package upgrade.
 
 2.  `complete_upgrade` (boolean, default: `true`)
+
 It defines the "Entire Cluster Update" method to be used while performing the package upgrade.
+
 **_NOTE:_** If both `rolling_upgrade` and `complete_upgrade` is set to `true`, `rolling_upgrade` takes precedence. If both are undefined in playbook, then role defaults to `Entire Cluster Update` method.
 
 3.  `local_repo` (boolean, default: `true`)
+
 It defines whether to use a local repository for package upgrade.
 
 4.  `release_set` (numeric, default: `null`)
-It defines the value to which the system release for subscription-manager is set.
-**_NOTE:_** If `local_repo` is set to `false`, then it is required to set the variable `release_set`.
 
-5.  `additional_packages_for_update` (list, default: [])
+It defines the value to which the system release for subscription-manager is set.
+
+**_NOTE:_** If `local_repo` is set to `false`, then it is optional to set the variable `release_set`. If `release_set` variable is not explicitely configured in `playbook/vars`, then `yum` will update it to the latest release.
+
+5.  `additional_packages_for_update` (list, default: `[]`)
+
 List of additional packages that requires to be updated along with the Pacemaker Cluster packages.
 
 ### Defined in `vars/main.yml`
 
-1.  `basic_packages` (list, default: ['pacemaker', 'corosync', 'pcs', 'resource-agents', 'fence-agents-all'])
+1.  `basic_packages` (list, default: `['pacemaker', 'corosync', 'pcs', 'resource-agents', 'fence-agents-all']`)
+
 List of basic Pacemaker related packages.
 
-2.  `resilient_packages_rh7` (list, default: ['gfs2-utils', 'lvm2-cluster', 'dlm'])
+2.  `resilient_packages_rh7` (list, default: `['gfs2-utils', 'lvm2-cluster', 'dlm']`)
+
 List of packages associated with Resilient Storage Add-On (GFS2 Cluster Setup) for RHEL 7.
 
-3.  `resilient_packages_rh8_rh9` (list, default: ['gfs2-utils', 'lvm2-lockd', 'dlm'])
+3.  `resilient_packages_rh8_rh9` (list, default: `['gfs2-utils', 'lvm2-lockd', 'dlm']`)
+
 List of packages associated with Resilient Storage Add-On (GFS2 Cluster Setup) for RHEL 8 & 9.
 
-4.  `sap_instance_packages` (list, default: ['resource-agents-sap'])
+4.  `sap_instance_packages` (list, default: `['resource-agents-sap']`)
+
 List of packages associated with Pacemaker cluter managing SAPInstance.
 
-5.  `sap_hana_packages` (list, default: ['resource-agents-sap-hana'])
+5.  `sap_hana_packages` (list, default: `['resource-agents-sap-hana']`)
+
 List of packages associated with Pacemaker cluter managing SAPHana.
 
-6.  `qdevice_packages` (list, default: ['corosync-qdevice'])
+6.  `qdevice_packages` (list, default: `['corosync-qdevice']`)
+
 List of packages associated with Quorum Device.
 
 ## Example Inventory
@@ -69,12 +82,12 @@ List of packages associated with Quorum Device.
 The inventory file _must_ be populated with the cluster node name. The inventory host names is used while executing the `pcs` commands.
 
 To get the cluster node names for populating the inventory, use the following command:
-```shell
+```bash
 # crm_node -l | awk '{ print $2 }'
 ```
 
 For example:
-```shell
+```bash
 # crm_node -l | awk '{ print $2 }'
 rhel-ha-node1.example.com
 rhel-ha-node2.example.com
@@ -95,11 +108,11 @@ This example playbook will help to update the cluster nodes with additional pack
 ```yaml
 - hosts: cluster
   vars:
-  additional_packages_for_update:
-    - nfs-utils
-    - openssh
+    additional_packages_for_update:
+      - nfs-utils
+      - openssh
   roles:
-    - system-roles.cluster_patching
+    - ha_cluster_upgrade
 ```
 
 ### Updating the cluster nodes with a specific subscription release
@@ -107,20 +120,23 @@ This example playbook will help to update the cluster nodes with additional pack
 ```yaml
 - hosts: cluster
   vars:
-  local_repo: false
-  release_set: 8.6
+    local_repo: false
+    release_set: 8.6
   roles:
-    - system-roles.cluster_patching
+    - ha_cluster_upgrade
 ```
 
 ### Using rolling method for performing the cluster upgrade
 ```yaml
 - hosts: cluster
   vars:
-  rolling_upgrade: true
+    rolling_upgrade: true
   roles:
-    - system-roles.cluster_patching
+    - ha_cluster_upgrade
 ```
+
+## License
+MIT
 
 ## Author Information
 Arslan Ahmad

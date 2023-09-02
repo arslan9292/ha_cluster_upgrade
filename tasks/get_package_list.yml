@@ -9,22 +9,22 @@
     - name: Is the cluster managing GFS2 filesystem?
       set_fact:
         __gfs2_cluster: >-
-          {% if __cluster_config.stdout | select('search', 'fstype=gfs2') | list | length > 0 %}
-            false
+          {% if __cluster_config.stdout_lines | select('search', '.*fstype=gfs2') | list | length > 0 %}
+            true
           {% endif %}
 
     - name: Is the cluster managing SAPInstance?
       set_fact:
         __sap_instance: >-
-          {% if __cluster_config.stdout | select('search', 'type=SAPInstance') | list | length > 0 %}
-            false
+          {% if __cluster_config.stdout_lines | select('search', '.*type=SAPInstance') | list | length > 0 %}
+            true
           {% endif %}
 
     - name: Is the cluster managing SAPHana?
       set_fact:
         __sap_hana: >-
-          {% if __cluster_config.stdout | select('search', 'type=SAPHana') | list | length > 0 %}
-            false
+          {% if __cluster_config.stdout_lines | select('search', '.*type=SAPHana') | list | length > 0 %}
+            true
           {% endif %}
 
     - name: Check for Quorum device configuration
