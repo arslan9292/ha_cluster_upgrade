@@ -3,4 +3,4 @@
   hosts: cluster
 
   roles:
-    - system-roles.cluster_patching
+    - ha_cluster_upgrade
