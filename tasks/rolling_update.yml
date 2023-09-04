@@ -14,7 +14,13 @@
       yum:
         name: "{{ __final_packages_for_update }}"
         state: latest
+      register: __yum_status
 
+    - name: Fail if yum operation failed
+      fail:
+        msg: "The yum operation failed on node {{ __cluster_node }}. Please fix before proceeding."
+      when: __yum_status.rc != 0
+      
     - name: Rebooting the node {{ __cluster_node }}
       reboot:
         msg: "Rebooting the cluster node {{ __cluster_node }} as a part of patching."
