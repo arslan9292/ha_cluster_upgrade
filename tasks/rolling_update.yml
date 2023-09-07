@@ -20,12 +20,18 @@
       fail:
         msg: "The yum operation failed on node {{ __cluster_node }}. Please fix before proceeding."
       when: __yum_status.rc != 0
-      
+
+    - name: Skip the reboot if no packages are updated
+      debug:
+        msg: "The reboot of cluster node {{ __cluster_node }} is skipped because no packages were updated. Starting back the cluster."
+      when: __yum_status.msg == "Nothing to do"
+
     - name: Rebooting the node {{ __cluster_node }}
       reboot:
         msg: "Rebooting the cluster node {{ __cluster_node }} as a part of patching."
         post_reboot_delay: 120   # This will allow the node to settle despite the connections are working
         reboot_timeout: 1800     # For slow booting systems (servers with high memory like SAPHana setup)
+      when: __yum_status.msg != "Nothing to do"
 
     - name: Start the cluster services on the node {{ __cluster_node }}
       command: pcs cluster start "{{ __cluster_node }}" --request-timeout=180

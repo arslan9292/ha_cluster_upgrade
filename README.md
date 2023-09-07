@@ -53,7 +53,7 @@ List of additional packages that requires to be updated along with the Pacemaker
 
 ### Defined in `vars/main.yml`
 
-1.  `basic_packages` (list, default: `['pacemaker', 'corosync', 'pcs', 'resource-agents', 'fence-agents-all']`)
+1.  `basic_packages` (list, default: `['pacemaker', 'corosync', 'pcs', 'resource-agents', 'fence-agents-all', 'libqb']`)
 
 List of basic Pacemaker related packages.
 
@@ -76,6 +76,14 @@ List of packages associated with Pacemaker cluter managing SAPHana.
 6.  `qdevice_packages` (list, default: `['corosync-qdevice']`)
 
 List of packages associated with Quorum Device.
+
+7.  `sbd_packages` (list, default: `['sbd']`)
+
+List of packages associated with sbd.
+
+8.  `booth_packages` (list, default: `['booth-site']`)
+
+List of packages associated with Booth cluster setup.
 
 ### Details for Rolling Upgrade method
 

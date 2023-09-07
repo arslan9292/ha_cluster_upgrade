@@ -4,7 +4,16 @@
     - name: Get the cluster configuration
       command: pcs config
       register: __cluster_config
+
+    - name: Get the booth status
+      command: pcs booth status
+      register: __booth_status
       ignore_errors: true
+
+    - name: Is this a booth cluster?
+      set_fact:
+        __booth_cluster: true
+      when: __booth_status.rc == 0
 
     - name: Is the cluster managing GFS2 filesystem?
       set_fact:
@@ -97,6 +106,22 @@
               {{ additional_packages_for_update + basic_packages }}
             {% endif %}
           {% endif %}
+
+    - name: Convert string to list
+      set_fact:
+        __final_packages_for_update: "{{ __final_packages_for_update | from_yaml }}"
+
+    - name: Add sbd & booth packages if necessary
+      set_fact:
+        __final_packages_for_update: >-
+          {% if __sbd_in_cluster and __booth_cluster %}
+            {{ __final_packages_for_update + sbd_packages + booth_packages }}
+          {% elif __sbd_in_cluster and not __booth_cluster %}
+            {{ __final_packages_for_update + sbd_packages }}
+          {% elif not __sbd_in_cluster and __booth_cluster %}
+            {{ __final_packages_for_update + booth_packages }}
+          {% endif %}
+      when: __sbd_in_cluster or __booth_cluster
 
     - name: Convert string to list
       set_fact:

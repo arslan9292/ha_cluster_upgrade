@@ -5,4 +5,18 @@
       command: pcs status --full
       register: __cluster_status
       ignore_errors: true
+
+    - name: Fail if cluster is not running
+      fail:
+        msg: "The cluster is not running, please ensure it is running & in healthy state 
+              and re-run the playbook."
+      when: __cluster_status.rc != 0
+
+    - name: Validate if cluster is configured with sbd fencing
+      set_fact:
+        __sbd_in_cluster: >-
+          {% if __cluster_status.stdout_lines | select('search', '.*sbd: active/enabled') | list | length > 0 %}
+            true
+          {% endif %}
+
   run_once: true

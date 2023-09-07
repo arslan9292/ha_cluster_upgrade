@@ -6,6 +6,7 @@ basic_packages:
   - pcs
   - fence-agents-all
   - resource-agents
+  - libqb
 
 resilient_packages_rh7:
   - lvm2-cluster
@@ -26,4 +27,11 @@ sap_hana_packages:
 qdevice_packages:
   - corosync-qdevice
 
+sbd_packages:
+  - sbd
+
+booth_packages:
+  - booth-site
+
 __qdevice_configured: false  # Do not update or change the value of this variable
+__booth_cluster: false       # Do not update or change the value of this variable
