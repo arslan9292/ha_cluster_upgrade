@@ -67,11 +67,11 @@ List of packages associated with Resilient Storage Add-On (GFS2 Cluster Setup) f
 
 4.  `sap_instance_packages` (list, default: `['resource-agents-sap']`)
 
-List of packages associated with Pacemaker cluter managing SAPInstance.
+List of packages associated with Pacemaker cluster managing SAPInstance & SAPDatabase.
 
 5.  `sap_hana_packages` (list, default: `['resource-agents-sap-hana']`)
 
-List of packages associated with Pacemaker cluter managing SAPHana.
+List of packages associated with Pacemaker cluster managing SAPHana.
 
 6.  `qdevice_packages` (list, default: `['corosync-qdevice']`)
 

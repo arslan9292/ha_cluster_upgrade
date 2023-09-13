@@ -22,10 +22,12 @@
             true
           {% endif %}
 
-    - name: Is the cluster managing SAPInstance?
+    - name: Is the cluster managing SAPInstance or SAPDatabase?
       set_fact:
-        __sap_instance: >-
+        __sap_inst_db: >-
           {% if __cluster_config.stdout_lines | select('search', '.*type=SAPInstance') | list | length > 0 %}
+            true
+          {% elif __cluster_config.stdout_lines | select('search', '.*type=SAPDatabase') | list | length > 0 %}
             true
           {% endif %}
 
@@ -51,58 +53,58 @@
         __final_packages_for_update: >-
           {% if __gfs2_cluster %}
             {% if ansible_facts['distribution_major_version'] == '7' %}
-              {% if __sap_instance and __sap_hana and __qdevice_configured %} # Cost-Optimized Setup with GFS2 with Q-Device
+              {% if __sap_inst_db and __sap_hana and __qdevice_configured %} # Cost-Optimized Setup with GFS2 with Q-Device
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + sap_instance_packages + sap_hana_packages + qdevice_packages }}
-              {% elif __sap_instance and __sap_hana and not __qdevice_configured %} # Cost-Optimized Setup with GFS2
+              {% elif __sap_inst_db and __sap_hana and not __qdevice_configured %} # Cost-Optimized Setup with GFS2
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + sap_instance_packages + sap_hana_packages }}
-              {% elif __sap_instance and not __sap_hana and __qdevice_configured %}
+              {% elif __sap_inst_db and not __sap_hana and __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + sap_instance_packages + qdevice_packages }}
-              {% elif __sap_instance and not __sap_hana and not __qdevice_configured %}
+              {% elif __sap_inst_db and not __sap_hana and not __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + sap_instance_packages }}
-              {% elif not __sap_instance and __sap_hana and __qdevice_configured %}
+              {% elif not __sap_inst_db and __sap_hana and __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + sap_hana_packages + qdevice_packages }}
-              {% elif not __sap_instance and __sap_hana and not __qdevice_configured %}
+              {% elif not __sap_inst_db and __sap_hana and not __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + sap_hana_packages }}
-              {% elif not __sap_instance and not __sap_hana and __qdevice_configured %}
+              {% elif not __sap_inst_db and not __sap_hana and __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 + qdevice_packages }}
-              {% elif not __sap_instance and not __sap_hana and not __qdevice_configured %}
+              {% elif not __sap_inst_db and not __sap_hana and not __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh7 }}
               {% endif %}
             {% elif ansible_facts['distribution_major_version'] == '8' or ansible_facts['distribution_major_version'] == '9' %}
-              {% if __sap_instance and __sap_hana and __qdevice_configured %} # Cost-Optimized Setup with GFS2 with Q-Device
+              {% if __sap_inst_db and __sap_hana and __qdevice_configured %} # Cost-Optimized Setup with GFS2 with Q-Device
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + sap_instance_packages + sap_hana_packages + qdevice_packages }}
-              {% elif __sap_instance and __sap_hana and not __qdevice_configured %} # Cost-Optimized Setup with GFS2
+              {% elif __sap_inst_db and __sap_hana and not __qdevice_configured %} # Cost-Optimized Setup with GFS2
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + sap_instance_packages + sap_hana_packages }}
-              {% elif __sap_instance and not __sap_hana and __qdevice_configured %}
+              {% elif __sap_inst_db and not __sap_hana and __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + sap_instance_packages + qdevice_packages }}
-              {% elif __sap_instance and not __sap_hana and not __qdevice_configured %}
+              {% elif __sap_inst_db and not __sap_hana and not __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + sap_instance_packages }}
-              {% elif not __sap_instance and __sap_hana and __qdevice_configured %}
+              {% elif not __sap_inst_db and __sap_hana and __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + sap_hana_packages + qdevice_packages }}
-              {% elif not __sap_instance and __sap_hana and not __qdevice_configured %}
+              {% elif not __sap_inst_db and __sap_hana and not __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + sap_hana_packages }}
-              {% elif not __sap_instance and not __sap_hana and __qdevice_configured %}
+              {% elif not __sap_inst_db and not __sap_hana and __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 + qdevice_packages }}
-              {% elif not __sap_instance and not __sap_hana and not __qdevice_configured %}
+              {% elif not __sap_inst_db and not __sap_hana and not __qdevice_configured %}
                 {{ additional_packages_for_update + basic_packages + resilient_packages_rh8_rh9 }}
               {% endif %}
             {% endif %}
           {% elif not __gfs2_cluster %}
-            {% if __sap_instance and __sap_hana and __qdevice_configured %} # Cost-Optimized Setup with Q-Device and without GFS2 (NFS or GlusterFS)
+            {% if __sap_inst_db and __sap_hana and __qdevice_configured %} # Cost-Optimized Setup with Q-Device and without GFS2 (NFS or GlusterFS)
               {{ additional_packages_for_update + basic_packages + sap_instance_packages + sap_hana_packages + qdevice_packages }}
-            {% elif __sap_instance and __sap_hana and not __qdevice_configured %} # Cost-Optimized Setup without GFS2 (NFS or GlusterFS)
+            {% elif __sap_inst_db and __sap_hana and not __qdevice_configured %} # Cost-Optimized Setup without GFS2 (NFS or GlusterFS)
               {{ additional_packages_for_update + basic_packages + sap_instance_packages + sap_hana_packages }}
-            {% elif __sap_instance and not __sap_hana and __qdevice_configured %}
+            {% elif __sap_inst_db and not __sap_hana and __qdevice_configured %}
               {{ additional_packages_for_update + basic_packages + sap_instance_packages + qdevice_packages }}
-            {% elif __sap_instance and not __sap_hana and not __qdevice_configured %}
+            {% elif __sap_inst_db and not __sap_hana and not __qdevice_configured %}
               {{ additional_packages_for_update + basic_packages + sap_instance_packages }}
-            {% elif not __sap_instance and __sap_hana and __qdevice_configured %}
+            {% elif not __sap_inst_db and __sap_hana and __qdevice_configured %}
               {{ additional_packages_for_update + basic_packages + sap_hana_packages + qdevice_packages }}
-            {% elif not __sap_instance and __sap_hana and not __qdevice_configured %}
+            {% elif not __sap_inst_db and __sap_hana and not __qdevice_configured %}
               {{ additional_packages_for_update + basic_packages + sap_hana_packages }}
-            {% elif not __sap_instance and not __sap_hana and __qdevice_configured %}
+            {% elif not __sap_inst_db and not __sap_hana and __qdevice_configured %}
               {{ additional_packages_for_update + basic_packages + qdevice_packages }}
-            {% elif not __sap_instance and not __sap_hana and not __qdevice_configured %}
+            {% elif not __sap_inst_db and not __sap_hana and not __qdevice_configured %}
               {{ additional_packages_for_update + basic_packages }}
             {% endif %}
           {% endif %}
