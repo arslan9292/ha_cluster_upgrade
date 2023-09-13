@@ -45,7 +45,7 @@ It defines whether to use a local repository for package upgrade.
 
 It defines the value to which the system release for subscription-manager is set.
 
-**_NOTE:_** If `local_repo` is set to `false`, then it is optional to set the variable `release_set`. If `release_set` variable is not explicitely configured in `playbook/vars`, then `yum` will update it to the latest release.
+**_NOTE:_** If `local_repo` is set to `false`, then it is optional to set the variable `release_set`. If `release_set` variable is not explicitely configured in `playbook/vars`, then `yum/dnf` will update it to the latest release.
 
 5.  `additional_packages_for_update` (list, default: `[]`)
 
@@ -152,6 +152,17 @@ This example playbook will help to update the cluster nodes with additional pack
     additional_packages_for_update:
       - nfs-utils
       - openssh
+  roles:
+    - ha_cluster_upgrade
+```
+
+### Updating all the installed packages to latest version on the cluster nodes
+
+This is equivalent of performing `yum/dnf update -y`.
+```yaml
+- hosts: cluster
+  vars:
+    additional_packages_for_update: '*'
   roles:
     - ha_cluster_upgrade
 ```
